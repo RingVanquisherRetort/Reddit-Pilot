@@ -7,7 +7,7 @@ from telegram.ext import (
 )
 from config import load_settings
 from database import (
-    create_draft, get_draft, init_db, list_drafts, mark_failed, mark_published
+    claim_draft, create_draft, get_draft, init_db, list_drafts, mark_failed, mark_published
 )
 from reddit_client import RedditClient
 
@@ -189,6 +189,9 @@ async def publish_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     cfg = load_settings()
     if cfg.allowed_subreddits and draft["subreddit"].lower() not in cfg.allowed_subreddits:
         await query.edit_message_text("Сабреддит не входит в ALLOWED_SUBREDDITS.")
+        return
+    if not claim_draft(draft_id):
+        await query.edit_message_text("Черновик уже отправляется или обработан.")
         return
     try:
         url = await reddit_call(
