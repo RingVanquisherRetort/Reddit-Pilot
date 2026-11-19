@@ -93,7 +93,7 @@ def mark_published(draft_id: int, url: str) -> None:
     with connection() as db:
         cur = db.execute(
             """UPDATE drafts SET status='published', reddit_url=?, published_at=?
-               WHERE id=? AND status='draft'""",
+               WHERE id=? AND status='publishing'""",
             (url, now_iso(), draft_id),
         )
         if cur.rowcount != 1:
@@ -107,7 +107,7 @@ def mark_published(draft_id: int, url: str) -> None:
 def mark_failed(draft_id: int, reason: str) -> None:
     with connection() as db:
         db.execute(
-            "UPDATE drafts SET status='failed' WHERE id=? AND status='draft'",
+            "UPDATE drafts SET status='failed' WHERE id=? AND status='publishing'",
             (draft_id,),
         )
         db.execute(
