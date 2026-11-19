@@ -218,7 +218,7 @@ def main() -> None:
     app.add_handler(CommandHandler("drafts", drafts_cmd))
     app.add_handler(CommandHandler("publish", publish_cmd))
     app.add_handler(CallbackQueryHandler(
-        publish_callback, pattern=r"^(publish|cancel):\\d+$"
+        publish_callback, pattern=r"^(publish|cancel):\d+$"
     ))
     log.info("Reddit Pilot Telegram bot starting")
     app.run_polling()
