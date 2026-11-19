@@ -73,6 +73,22 @@ def list_drafts(limit: int = 20):
         return [dict(row) for row in rows]
 
 
+def claim_draft(draft_id: int) -> bool:
+    """Atomically reserve a draft so repeated button clicks cannot double-submit."""
+    with connection() as db:
+        cur = db.execute(
+            "UPDATE drafts SET status='publishing' WHERE id=? AND status='draft'",
+            (draft_id,),
+        )
+        if cur.rowcount == 1:
+            db.execute(
+                "INSERT INTO audit_log(action,details,created_at) VALUES(?,?,?)",
+                ("publishing", f"draft_id={draft_id}", now_iso()),
+            )
+            return True
+        return False
+
+
 def mark_published(draft_id: int, url: str) -> None:
     with connection() as db:
         cur = db.execute(
